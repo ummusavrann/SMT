@@ -1,0 +1,131 @@
+---
+title: "HOMEWORK - 6 - SMT"
+author: "Ümmü Savran"
+date: "2024-04-18"
+output: pdf_document
+---
+
+```{r}
+# Load the necessary libraries
+library(ggplot2)
+library(dplyr)
+
+```
+
+## DATA SET
+
+```{r}
+# Load required libraries
+library(MASS)
+
+# Generating the dataset
+set.seed(123) # Set seed for reproducibility
+
+
+# Define sample size
+n <- 100
+
+# Generate age data: random values between 20 and 60
+age <- sample(20:60, n, replace = TRUE)
+
+# Generate experience data: random values between 1 and 30
+experience <- sample(1:30, n, replace = TRUE)
+
+# Generate main dish service time data: random values following a normal distribution with more variability
+service_time <- rnorm(n, mean = 20 + 0.5*age - 0.2*experience, sd = 5)
+
+# Create the dataset
+data <- data.frame(Age = age, Experience = experience, Service_Time = service_time)
+
+# Check the summary of the dataset
+summary(data)
+
+# Define age and experience levels
+data$Age_Group <- ifelse(data$Age < 40, "Low", "High")
+data$Experience_Group <- ifelse(data$Experience < 20, "Low", "High")
+
+```
+
+```{r}
+data
+```
+
+
+## REGRESSİON MODEL
+
+```{r}
+# Fit a linear regression model
+model <- lm(Service_Time ~ ., data = data)
+
+# Summary of the regression model
+summary(model)
+
+```
+
+In this model, a linear regression model was applied to evaluate the effects of independent variables (Age, 
+Experience, Age_GroupLow, Experience_GroupLow) on Service_Time. When the p-values of the model are examined, 
+it is seen that the age variable has a statistically significant effect on Service_Time (p < 0.001). In other
+words, it can be said that as age increases, the length of service also increases. However, it cannot be said
+that the Experience variable (p = 0.7485) and the age group (Age_GroupLow) and experience group 
+(Experience_GroupLow) variables (both p > 0.05) have a statistically significant effect. The effect of these 
+variables on Service_Time is not obvious. The R-squared value of the model is 0.5764, which indicates that 
+the independent variables explain 57.64% of the total variance. However, the corrected R-squared value is 
+0.5586, which may indicate that the model has less explained variance and perhaps the model can be improved 
+with more independent variables. The f-statistic is 32.32 and the p-value is < 2.2e-16, which indicates that 
+the model is significant, that is, there is statistically significant evidence that at least one argument 
+describes Service_Time However, further evaluation may be required to determine exactly how well the model 
+fits.
+
+## ANOVA ANALYSIS
+
+```{r}
+# Perform ANOVA
+anova_result <- anova(model)
+
+# Summary of ANOVA results
+print("ANOVA Results:")
+print(anova_result)
+
+```
+
+While these ANOVA results show that age and experience variables have a significant effect on Service_Time, 
+they show that the effect of age group and experience group is not statistically significant. The effect of 
+age and experience variables on Service_Time is quite noticeable, but the effect of age group and experience 
+group variables is weak or almost nonexistent. These results show that SERVICE_TIME depends more precisely on
+individual characteristics such as age and experience, but age and experience groups do not make a 
+significant difference in this context.
+
+## ANCOVA ANALYSIS
+
+```{r}
+# Perform ANCOVA
+ancova_result <- lm(Service_Time ~ Age + Experience, data = data)
+
+# Summary of ANCOVA results
+summary(ancova_result)
+
+
+```
+
+These ANCOVA results show that age and experience variables have a significant impact on Service_Time. The 
+effect of age on Service_Time is quite pronounced (p < 0.001), Service_Time tends to increase as age 
+increases. The effect of the experience variable is statistically significant (p = 0.015), but this effect is
+weaker than the effect of age. These results show that SERVICE_TIME depends on factors such as both age and 
+experience. However, the effect of the age variable is stronger than the experience variable.
+
+
+```{r}
+# Visualize the data using scatterplot
+plot(data$Age, data$Service_Time, 
+     xlab = "Age", ylab = "Service Time", 
+     main = "Scatterplot of Service Time vs Age")
+
+```
+
+This Decoupling graph visualizes the relationship between age and length of service. On the graph, there 
+seems to be a trend that as the age increases, the length of service usually increases as well. However, it 
+is noticed that there are large fluctuations in the duration of service in some age values. These 
+fluctuations may indicate that the relationship between age and length of service is influenced by some other
+factors, or they may affect the accuracy of the model. Dec. These points should be examined in more detail.
+
+
